@@ -186,6 +186,12 @@ def parse_args(argv, exe_name, desc):
                                  'alignments before per-gene IQ-TREE. Requires clipkit '
                                  'in PATH. Used by step 4astral.')
 
+    arg_parser.add_argument('--astral_binary', default=None,
+                            help='[Default is auto-detect] Name or path of the ASTER '
+                                 'binary to use for coalescent species tree estimation '
+                                 '(e.g. astral3, astral-pro3, astral-pro2). If not set, '
+                                 'the first available binary is used. Used by step 4astral.')
+
     arg_parser.add_argument('--step', default="all",
                             help='[Default is all  1marker 2map 3combine 4astral')
 

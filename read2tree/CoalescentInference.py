@@ -218,7 +218,8 @@ class CoalescentInference(object):
         """
         species_tree_file = os.path.join(self.args.output_path,
                                          'astral_tree_' + self._species_name + '.nwk')
-        aster_wrapper = Aster(gene_tree_file, species_tree_file)
+        aster_wrapper = Aster(gene_tree_file, species_tree_file,
+                              binary=getattr(self.args, 'astral_binary', None))
         aster_wrapper.options.options['-t'].set_value(self.args.threads)
         tree = aster_wrapper()
         logger.info('{}: Coalescent species tree written to {}'.format(
