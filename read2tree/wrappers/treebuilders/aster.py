@@ -18,11 +18,11 @@ class AsterCLI(AbstractCLI):
 
 class Aster(object):
     """
-    Wrapper for ASTER (astral3) coalescent species tree estimator.
+    Wrapper for the ASTER suite of coalescent species tree estimators.
 
     Takes a file of gene trees (one Newick tree per line) and writes a species
-    tree to output_file using the ASTRAL-III algorithm.  Returns the species
-    tree in Newick format.
+    tree to output_file using the selected ASTER algorithm.  Returns the
+    species tree in Newick format.
 
     :Example:
 
@@ -45,7 +45,7 @@ class Aster(object):
         try:
             self.cli = AsterCLI(executable=binary)
         except IOError as err:
-            raise WrapperError('Error searching for astral3 binary: {}'.format(err))
+            raise WrapperError('Error searching for ASTER binary: {}'.format(err))
 
     def __call__(self, *args, **kwargs):
         start = time.time()

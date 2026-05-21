@@ -138,7 +138,7 @@ read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.
 
 Step 4 does the following automatically:
 1. Filters the per-OG alignments from step 3 by taxon occupancy (`--min_samples`, default 10) and gap fraction (`--max_gap`, default 0.80).
-2. Runs IQ-TREE on each passing alignment in parallel (`-m LG+F+G`, `-alrt 1000`, `-fast`) to infer individual gene trees.
+2. Runs IQ-TREE on each passing alignment in parallel (`-m LG+F+G`, `-alrt 1000`, `--abayes`, `-fast`) to infer individual gene trees.
 3. Collects all gene trees and passes them to [ASTER](https://github.com/chaoszhang/ASTER) to produce the final coalescent species tree.
 
 **ASTER binary.** The ASTER suite provides several binaries, all installed by `conda install aster`. By default, step 4 auto-detects the first available in your PATH in this order: `astral3` → `astral-pro3` → `astral-pro2` → `wastral` → `astral4`. Use `--astral_binary` to opt into a specific estimator:
