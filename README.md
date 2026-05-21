@@ -51,6 +51,11 @@ For this version, the `--read_type` argument accepts any minimap2 options string
 conda install -c bioconda mafft iqtree minimap2 samtools
 ```
 
+For the coalescent species tree (step 4), [ASTER](https://github.com/chaoszhang/ASTER) (the C++ implementation of ASTRAL-III) is required. [ClipKIT](https://github.com/JLSteenwyk/ClipKIT) is optional and used only when `--trim` is passed.
+```
+conda install -c bioconda aster clipkit
+```
+
 Then, you can install the read2tree package after downlaoding the package from this GitHub repo using
 
 ```
@@ -79,7 +84,9 @@ cat marker_genes/*.fna > dna_ref.fa
 
 ### output 
 
-The output of Read2Tree is the concatenated alignments as a fasta file where each record corresponds to one species. We also provide the option `--tree` for inferring the species tree using IQTREE as default.  
+The output of Read2Tree is the concatenated alignments as a fasta file where each record corresponds to one species. We also provide the option `--tree` for inferring the species tree using IQTREE as default (concatenation/supermatrix approach).
+
+For a coalescent-based species tree that accounts for incomplete lineage sorting and differing gene tree histories, run the optional **step 4** after step 3 (see below).  
 
 
 ### Single species mode
@@ -120,6 +127,31 @@ Tunable filters (only active with `--meta`):
 - `--meta_marker_fraction` (float in 0-1, default `0.0`): minimum fraction of total marker genes a metagenomic species must have alignments in.
 
 **Note on false positives:** metagenomic mode is permissive by design and may include species that share marker reads only by chance. We recommend tuning `--meta_min_markers` and `--meta_marker_fraction` to your dataset (e.g. `50` and `0.5` as a starting point for typical microbial communities) to reduce false positives.
+
+#### step4 (optional: coalescent species tree)
+
+Step 3 builds a supermatrix tree by concatenating all OG alignments. If you want a **coalescent-based species tree** instead — which better handles incomplete lineage sorting and the different evolutionary histories of individual genes — run step 4 after step 3:
+
+```
+read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24
+```
+
+Step 4 does the following automatically:
+1. Filters the per-OG alignments from step 3 by taxon occupancy (`--min_samples`, default 10) and gap fraction (`--max_gap`, default 0.80).
+2. Runs IQ-TREE on each passing alignment in parallel (`-m LG+F+G`, `-alrt 1000`, `-fast`) to infer individual gene trees.
+3. Collects all gene trees and passes them to [ASTER](https://github.com/chaoszhang/ASTER) (`astral3`) to produce the final coalescent species tree.
+
+Optionally, pass `--trim` to run [ClipKIT](https://github.com/JLSteenwyk/ClipKIT) column-trimming on each alignment before gene tree inference:
+```
+read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --trim
+```
+
+Key output files written to `output/`:
+- `07_astral_filtered_aa/` — per-OG FASTA alignments that passed filtering
+- `07_astral_trimmed_aa/` — ClipKIT-trimmed alignments (only when `--trim` is used)
+- `08_gene_trees/` — individual IQ-TREE gene tree files
+- `gene_trees_merge.nwk` — all gene trees concatenated into one file (input to ASTER)
+- `astral_tree_merge.nwk` — the final coalescent species tree in Newick format
 
 ### bootstraping
 

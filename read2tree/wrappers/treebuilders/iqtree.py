@@ -147,3 +147,15 @@ def get_default_options():
         # Bootstrap + ML tree + consensus tree (>=100)
         IntegerOption('-b', 0, active=False)
     ])
+
+
+def get_gene_tree_options():
+    """Options for per-gene tree inference in the coalescent pipeline (step 4astral)."""
+    return OptionSet([
+        IntegerOption('-nt', 1, active=True),
+        StringOption('-m', 'LG+F+G', active=True),
+        StringOption('-st', 'AA', active=True),
+        StringOption('-mem', '4G', active=True),
+        IntegerOption('-alrt', 1000, active=True),
+        FlagOption('-fast', True, active=True),
+    ])
