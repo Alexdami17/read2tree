@@ -165,6 +165,25 @@ Optionally, pass `--trim` to run [ClipKIT](https://github.com/JLSteenwyk/ClipKIT
 read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --trim
 ```
 
+**IQ-TREE and ASTER options.** Step 4 uses sensible defaults for per-gene tree inference (`-m LG+F+G -alrt 1000 --abayes -fast`). For cases where these need to be adjusted, three pass-through arguments are available:
+
+| Argument | Default | Purpose |
+|---|---|---|
+| `--iqtree_model` | `LG+F+G` | Substitution model for per-gene IQ-TREE runs (e.g. `WAG+G`, `LG+G`, `TEST` for ModelFinder) |
+| `--iqtree_args` | none | Extra flags appended verbatim to every per-gene IQ-TREE call (e.g. `"-bb 1000 -redo"`) |
+| `--astral_args` | none | Extra flags appended verbatim to the ASTER call (e.g. `"-C --root OUTGROUP"`) |
+
+```
+# Use WAG+G model instead of LG+F+G
+read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --iqtree_model WAG+G
+
+# Run ModelFinder per gene (much slower, but selects best-fit model for each OG)
+read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --iqtree_model TEST
+
+# Pass extra flags to ASTER (e.g. polytomy test)
+read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --astral_args "-C"
+```
+
 Key output files written to `output/`:
 - `07_astral_filtered_aa/` — per-OG FASTA alignments that passed filtering
 - `07_astral_trimmed_aa/` — ClipKIT-trimmed alignments (only when `--trim` is used)

@@ -192,6 +192,25 @@ def parse_args(argv, exe_name, desc):
                                  '(e.g. astral3, astral-pro3, astral-pro2). If not set, '
                                  'the first available binary is used. Used by step 4astral.')
 
+    arg_parser.add_argument('--iqtree_model', default=None,
+                            help='[Default is LG+F+G] Substitution model passed to IQ-TREE '
+                                 'for per-gene tree inference in step 4astral. Overrides the '
+                                 'built-in default (e.g. --iqtree_model WAG+G, '
+                                 '--iqtree_model LG+G, --iqtree_model TEST). '
+                                 'Used by step 4astral.')
+
+    arg_parser.add_argument('--iqtree_args', default=None,
+                            help='[Default is none] Extra IQ-TREE flags appended verbatim to '
+                                 'every per-gene tree invocation in step 4astral. Use quotes '
+                                 'for multiple flags (e.g. --iqtree_args "-bb 1000 -redo"). '
+                                 'Used by step 4astral.')
+
+    arg_parser.add_argument('--astral_args', default=None,
+                            help='[Default is none] Extra flags appended verbatim to the ASTER '
+                                 'command in step 4astral. Use quotes for multiple flags '
+                                 '(e.g. --astral_args "-C --root OUTGROUP"). '
+                                 'Used by step 4astral.')
+
     arg_parser.add_argument('--step', default="all",
                             help='[Default is all  1marker 2map 3combine 4astral')
 

@@ -15,6 +15,7 @@ from Bio import SeqIO, AlignIO
 from read2tree.wrappers.treebuilders.iqtree import Iqtree, get_gene_tree_options
 from read2tree.wrappers.treebuilders.base_treebuilder import DataType
 from read2tree.wrappers.treebuilders.aster import Aster
+from read2tree.wrappers.options import StringOption
 from read2tree.wrappers import WrapperError
 
 logger = logging.getLogger(__name__)
@@ -26,11 +27,15 @@ def _run_gene_tree(task):
     Runs IQ-TREE on a single alignment file and writes the treefile.
     Returns the Newick tree string, or None on failure.
     """
-    alignment_file, gene_trees_folder = task
+    alignment_file, gene_trees_folder, iqtree_model, iqtree_extra = task
     og_name = os.path.basename(alignment_file).rsplit('.', 1)[0]
     try:
         iqtree_wrapper = Iqtree(alignment_file, datatype=DataType.PROTEIN)
         iqtree_wrapper.options = get_gene_tree_options()
+        if iqtree_model:
+            iqtree_wrapper.options.options['-m'].set_value(iqtree_model)
+        if iqtree_extra:
+            iqtree_wrapper.options.options['_extra'] = StringOption('', iqtree_extra, active=True)
         tree = iqtree_wrapper()
         if tree:
             treefile = os.path.join(gene_trees_folder, og_name + '.treefile')
@@ -189,7 +194,9 @@ class CoalescentInference(object):
         :param alignment_files: list of FASTA alignment paths
         :return: path to the concatenated gene treefile
         """
-        tasks = [(f, self._gene_trees_folder) for f in alignment_files]
+        iqtree_model = getattr(self.args, 'iqtree_model', None)
+        iqtree_extra = getattr(self.args, 'iqtree_args', None)
+        tasks = [(f, self._gene_trees_folder, iqtree_model, iqtree_extra) for f in alignment_files]
         logger.info('{}: Running per-gene IQ-TREE on {} alignments with {} workers.'.format(
             self._species_name, len(tasks), self.args.threads))
 
@@ -221,6 +228,9 @@ class CoalescentInference(object):
         aster_wrapper = Aster(gene_tree_file, species_tree_file,
                               binary=getattr(self.args, 'astral_binary', None))
         aster_wrapper.options.options['-t'].set_value(self.args.threads)
+        astral_extra = getattr(self.args, 'astral_args', None)
+        if astral_extra:
+            aster_wrapper.options.options['_extra'] = StringOption('', astral_extra, active=True)
         tree = aster_wrapper()
         logger.info('{}: Coalescent species tree written to {}'.format(
             self._species_name, species_tree_file))
