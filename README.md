@@ -141,6 +141,8 @@ Step 4 does the following automatically:
 2. Runs IQ-TREE on each passing alignment in parallel (`-m LG+F+G`, `-alrt 1000`, `-fast`) to infer individual gene trees.
 3. Collects all gene trees and passes them to [ASTER](https://github.com/chaoszhang/ASTER) (`astral3`) to produce the final coalescent species tree.
 
+**Choosing `--min_samples` for large datasets.** The default of 10 is intentionally permissive so the tool works out of the box for small test datasets. For studies with many samples, the occupancy threshold has a large effect on how many OGs survive filtering and on the quality of the resulting gene trees. A useful empirical guideline is to require at least **30–40% taxon occupancy** — for example, `--min_samples 100` for a dataset of ~300 samples. In practice, applying a meaningful occupancy threshold together with `--max_gap 0.80` can reduce the number of OGs from tens of thousands to a few hundred; this is expected and desirable, as the surviving alignments are well-sampled across the tree and produce far more reliable gene trees for ASTRAL than a large set of sparse, gap-heavy alignments would. If the filtered set is very small (fewer than ~50 OGs), consider relaxing `--min_samples` slightly rather than `--max_gap`, since taxon occupancy drives gene tree resolution more than column-level gap content.
+
 Optionally, pass `--trim` to run [ClipKIT](https://github.com/JLSteenwyk/ClipKIT) column-trimming on each alignment before gene tree inference:
 ```
 read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --trim
