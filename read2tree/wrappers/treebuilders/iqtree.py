@@ -150,7 +150,12 @@ def get_default_options():
 
 
 def get_gene_tree_options():
-    """Options for per-gene tree inference in the coalescent pipeline (step 4astral)."""
+    """Options for per-gene tree inference in the coalescent pipeline (step 4astral).
+
+    --abayes computes aBayes posterior branch supports alongside SH-aLRT values.
+    Both are annotated as node labels on the output tree, which wASTRAL uses for
+    quartet weighting when --astral_binary wastral is selected.
+    """
     return OptionSet([
         IntegerOption('-nt', 1, active=True),
         StringOption('-m', 'LG+F+G', active=True),
@@ -158,4 +163,5 @@ def get_gene_tree_options():
         StringOption('-mem', '4G', active=True),
         IntegerOption('-alrt', 1000, active=True),
         FlagOption('-fast', True, active=True),
+        FlagOption('--abayes', True, active=True),
     ])

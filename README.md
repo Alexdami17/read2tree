@@ -141,9 +141,21 @@ Step 4 does the following automatically:
 2. Runs IQ-TREE on each passing alignment in parallel (`-m LG+F+G`, `-alrt 1000`, `-fast`) to infer individual gene trees.
 3. Collects all gene trees and passes them to [ASTER](https://github.com/chaoszhang/ASTER) to produce the final coalescent species tree.
 
-**ASTER binary.** The ASTER suite provides several binaries (`astral3`, `astral-pro3`, `astral-pro2`). By default, step 4 auto-detects the first one available in your PATH in that order. To specify one explicitly — for example if you prefer `astral-pro3`, which handles both single and multi-copy gene trees:
+**ASTER binary.** The ASTER suite provides several binaries, all installed by `conda install aster`. By default, step 4 auto-detects the first available in your PATH in this order: `astral3` → `astral-pro3` → `astral-pro2` → `wastral` → `astral4`. Use `--astral_binary` to opt into a specific estimator:
+
+| Binary | When to use |
+|---|---|
+| `astral3` | Default. Standard ASTRAL-III for single-copy orthologs. |
+| `astral-pro3` | Multi-copy gene trees or allopolyploid taxa. |
+| `wastral` | Recommended for noisy gene trees. Weights each quartet by the branch support and branch length of the gene tree branches that define it (hybrid mode), so poorly supported splits contribute less to the species tree. IQ-TREE's `--abayes` supports (already included in step 4) provide the best weighting signal. |
+| `astral4` | Large datasets with substantial missing taxa, or when substitution-rate branch lengths on internal nodes are needed for downstream rate analyses. Implements ASTRAL-IV (Zhang et al., *MBE* 2025). |
+
 ```
-read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --astral_binary astral-pro3
+# weighted ASTRAL — better accuracy when gene tree support is variable
+read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --astral_binary wastral
+
+# ASTRAL-IV — better robustness under missing data
+read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --astral_binary astral4
 ```
 
 **Choosing `--min_samples` for large datasets.** The default of 10 is intentionally permissive so the tool works out of the box for small test datasets. For studies with many samples, the occupancy threshold has a large effect on how many OGs survive filtering and on the quality of the resulting gene trees. A useful empirical guideline is to require at least **30–40% taxon occupancy** — for example, `--min_samples 100` for a dataset of ~300 samples. In practice, applying a meaningful occupancy threshold together with `--max_gap 0.80` can reduce the number of OGs from tens of thousands to a few hundred; this is expected and desirable, as the surviving alignments are well-sampled across the tree and produce far more reliable gene trees for ASTRAL than a large set of sparse, gap-heavy alignments would. If the filtered set is very small (fewer than ~50 OGs), consider relaxing `--min_samples` slightly rather than `--max_gap`, since taxon occupancy drives gene tree resolution more than column-level gap content.

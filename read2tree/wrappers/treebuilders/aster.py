@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 class AsterCLI(AbstractCLI):
     @property
     def _default_exe(self):
-        return ['astral3', 'astral-pro3', 'astral-pro2']
+        return ['astral3', 'astral-pro3', 'astral-pro2', 'wastral', 'astral4']
 
 
 class Aster(object):
