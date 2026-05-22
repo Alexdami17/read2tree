@@ -146,9 +146,9 @@ Step 4 does the following automatically:
 | Binary | When to use |
 |---|---|
 | `astral3` | Default. Standard ASTRAL-III for single-copy orthologs. |
-| `astral-pro3` | Multi-copy gene trees or allopolyploid taxa. |
-| `wastral` | Recommended for noisy gene trees. Weights each quartet by the branch support and branch length of the gene tree branches that define it (hybrid mode), so poorly supported splits contribute less to the species tree. IQ-TREE's `--abayes` supports (already included in step 4) provide the best weighting signal. |
-| `astral4` | Large datasets with substantial missing taxa, or when substitution-rate branch lengths on internal nodes are needed for downstream rate analyses. Implements ASTRAL-IV (Zhang et al., *MBE* 2025). |
+| `astral-pro3` | Gene trees with paralogs (multi-copy gene families). |
+| `wastral` | Recommended for noisy gene trees. Weights each quartet by gene tree branch support, so poorly supported splits contribute less to the species tree. IQ-TREE's `--abayes` supports (already included in step 4) provide the weighting signal. |
+| `astral4` | Large datasets with substantial missing taxa, or when substitution-rate branch lengths on internal nodes are needed for downstream rate analyses. |
 
 ```
 # weighted ASTRAL — better accuracy when gene tree support is variable
@@ -171,7 +171,7 @@ read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.
 |---|---|---|
 | `--iqtree_model` | `LG+F+G` | Substitution model for per-gene IQ-TREE runs (e.g. `WAG+G`, `LG+G`, `TEST` for ModelFinder) |
 | `--iqtree_args` | none | Extra flags appended verbatim to every per-gene IQ-TREE call (e.g. `"-bb 1000 -redo"`) |
-| `--astral_args` | none | Extra flags appended verbatim to the ASTER call (e.g. `"-C --root OUTGROUP"`) |
+| `--astral_args` | none | Extra flags appended verbatim to the ASTER call; see the ASTER documentation for available options |
 
 ```
 # Use WAG+G model instead of LG+F+G
@@ -179,9 +179,6 @@ read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.
 
 # Run ModelFinder per gene (much slower, but selects best-fit model for each OG)
 read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --iqtree_model TEST
-
-# Pass extra flags to ASTER (e.g. polytomy test)
-read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --astral_args "-C"
 ```
 
 Key output files written to `output/`:
