@@ -221,7 +221,7 @@ class CoalescentInference(object):
 
     def _infer_species_tree(self, gene_tree_file):
         """
-        Run ASTER (astral3) on the collected gene trees to estimate a coalescent species tree.
+        Run ASTER on the collected gene trees to estimate a coalescent species tree.
 
         :param gene_tree_file: path to file containing one gene tree (Newick) per line
         :return: coalescent species tree in Newick format

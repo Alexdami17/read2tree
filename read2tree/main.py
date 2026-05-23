@@ -207,8 +207,8 @@ def parse_args(argv, exe_name, desc):
 
     arg_parser.add_argument('--astral_args', default=None,
                             help='[Default is none] Extra flags appended verbatim to the ASTER '
-                                 'command in step 4astral. Use quotes for multiple flags '
-                                 '(e.g. --astral_args "-C --root OUTGROUP"). '
+                                 'command in step 4astral. Use quotes for multiple flags. '
+                                 'See ASTER documentation for available options. '
                                  'Used by step 4astral.')
 
     arg_parser.add_argument('--step', default="all",
