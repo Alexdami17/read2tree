@@ -151,10 +151,10 @@ Step 4 does the following automatically:
 | `astral4` | Large datasets with substantial missing taxa, or when substitution-rate branch lengths on internal nodes are needed for downstream rate analyses. |
 
 ```
-# weighted ASTRAL — better accuracy when gene tree support is variable
+# weighted ASTRAL - better accuracy when gene tree support is variable
 read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --astral_binary wastral
 
-# ASTRAL-IV — better robustness under missing data
+# ASTRAL-IV - better robustness under missing data
 read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --astral_binary astral4
 ```
 
