@@ -29,6 +29,10 @@ def _run_gene_tree(task):
     """
     alignment_file, gene_trees_folder, iqtree_model, iqtree_extra = task
     og_name = os.path.basename(alignment_file).rsplit('.', 1)[0]
+    treefile = os.path.join(gene_trees_folder, og_name + '.treefile')
+    if os.path.exists(treefile) and os.path.getsize(treefile) > 0:
+        with open(treefile, 'r') as fh:
+            return fh.read().strip()
     try:
         iqtree_wrapper = Iqtree(alignment_file, datatype=DataType.PROTEIN)
         iqtree_wrapper.options = get_gene_tree_options()
@@ -38,7 +42,6 @@ def _run_gene_tree(task):
             iqtree_wrapper.options.options['_extra'] = StringOption('', iqtree_extra, active=True)
         tree = iqtree_wrapper()
         if tree:
-            treefile = os.path.join(gene_trees_folder, og_name + '.treefile')
             with open(treefile, 'w') as fh:
                 fh.write(tree.strip() + '\n')
             return tree
