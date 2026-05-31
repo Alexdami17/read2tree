@@ -211,6 +211,12 @@ def parse_args(argv, exe_name, desc):
                                  'See ASTER documentation for available options. '
                                  'Used by step 4astral.')
 
+    arg_parser.add_argument('--no_fast', action='store_true',
+                            help='[Default is false] Disable the -fast flag for per-gene '
+                                 'IQ-TREE runs in step 4astral, enabling a full ML tree '
+                                 'search. Required when using bootstrap via --iqtree_args '
+                                 '(e.g. --iqtree_args "-B 1000"). Used by step 4astral.')
+
     arg_parser.add_argument('--step', default="all",
                             help='[Default is all  1marker 2map 3combine 4astral')
 

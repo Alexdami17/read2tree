@@ -170,8 +170,9 @@ read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.
 | Argument | Default | Purpose |
 |---|---|---|
 | `--iqtree_model` | `LG+F+G` | Substitution model for per-gene IQ-TREE runs (e.g. `WAG+G`, `LG+G`, `TEST` for ModelFinder) |
-| `--iqtree_args` | none | Extra flags appended verbatim to every per-gene IQ-TREE call (e.g. `"-bb 1000 -redo"`) |
+| `--iqtree_args` | none | Extra flags appended verbatim to every per-gene IQ-TREE call (e.g. `"-B 1000"`) |
 | `--astral_args` | none | Extra flags appended verbatim to the ASTER call; see the ASTER documentation for available options |
+| `--no_fast` | off | Disable the `-fast` flag to run a full ML tree search per gene. Required when using bootstrap via `--iqtree_args` (e.g. `--iqtree_args "-B 1000"`), as `-fast` and bootstrap are incompatible in IQ-TREE |
 
 ```
 # Use WAG+G model instead of LG+F+G
@@ -179,6 +180,9 @@ read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.
 
 # Run ModelFinder per gene (much slower, but selects best-fit model for each OG)
 read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --iqtree_model TEST
+
+# Full ML search with ultrafast bootstrap (--no_fast required when using -B)
+read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --no_fast --iqtree_args "-B 1000"
 ```
 
 Key output files written to `output/`:

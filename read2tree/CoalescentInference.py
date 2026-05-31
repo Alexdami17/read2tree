@@ -27,7 +27,7 @@ def _run_gene_tree(task):
     Runs IQ-TREE on a single alignment file and writes the treefile.
     Returns the Newick tree string, or None on failure.
     """
-    alignment_file, gene_trees_folder, iqtree_model, iqtree_extra = task
+    alignment_file, gene_trees_folder, iqtree_model, iqtree_extra, no_fast = task
     og_name = os.path.basename(alignment_file).rsplit('.', 1)[0]
     treefile = os.path.join(gene_trees_folder, og_name + '.treefile')
     if os.path.exists(treefile) and os.path.getsize(treefile) > 0:
@@ -38,6 +38,8 @@ def _run_gene_tree(task):
         iqtree_wrapper.options = get_gene_tree_options()
         if iqtree_model:
             iqtree_wrapper.options.options['-m'].set_value(iqtree_model)
+        if no_fast:
+            iqtree_wrapper.options.options['-fast'].active = False
         if iqtree_extra:
             iqtree_wrapper.options.options['_extra'] = StringOption('', iqtree_extra, active=True)
         tree = iqtree_wrapper()
@@ -199,7 +201,8 @@ class CoalescentInference(object):
         """
         iqtree_model = getattr(self.args, 'iqtree_model', None)
         iqtree_extra = getattr(self.args, 'iqtree_args', None)
-        tasks = [(f, self._gene_trees_folder, iqtree_model, iqtree_extra) for f in alignment_files]
+        no_fast = getattr(self.args, 'no_fast', False)
+        tasks = [(f, self._gene_trees_folder, iqtree_model, iqtree_extra, no_fast) for f in alignment_files]
         logger.info('{}: Running per-gene IQ-TREE on {} alignments with {} workers.'.format(
             self._species_name, len(tasks), self.args.threads))
 

@@ -152,12 +152,13 @@ def get_default_options():
 def get_gene_tree_options():
     """Options for per-gene tree inference in the coalescent pipeline (step 4astral).
 
+    Uses -T (IQ-TREE 2/3 thread flag) rather than the legacy -nt flag.
     --abayes computes aBayes posterior branch supports alongside SH-aLRT values.
     Both are annotated as node labels on the output tree, which wASTRAL uses for
     quartet weighting when --astral_binary wastral is selected.
     """
     return OptionSet([
-        IntegerOption('-nt', 1, active=True),
+        IntegerOption('-T', 1, active=True),
         StringOption('-m', 'LG+F+G', active=True),
         StringOption('-st', 'AA', active=True),
         StringOption('-mem', '4G', active=True),
