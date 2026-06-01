@@ -12,7 +12,7 @@ import logging
 from multiprocessing import Pool
 from Bio import SeqIO, AlignIO
 
-from read2tree.wrappers.treebuilders.iqtree import Iqtree, get_gene_tree_options
+from read2tree.wrappers.treebuilders.iqtree import Iqtree, get_gene_tree_options, get_gene_tree_dna_options
 from read2tree.wrappers.treebuilders.base_treebuilder import DataType
 from read2tree.wrappers.treebuilders.aster import Aster
 from read2tree.wrappers.options import StringOption
@@ -27,15 +27,19 @@ def _run_gene_tree(task):
     Runs IQ-TREE on a single alignment file and writes the treefile.
     Returns the Newick tree string, or None on failure.
     """
-    alignment_file, gene_trees_folder, iqtree_model, iqtree_extra, no_fast = task
+    alignment_file, gene_trees_folder, iqtree_model, iqtree_extra, no_fast, seq_type = task
     og_name = os.path.basename(alignment_file).rsplit('.', 1)[0]
     treefile = os.path.join(gene_trees_folder, og_name + '.treefile')
     if os.path.exists(treefile) and os.path.getsize(treefile) > 0:
         with open(treefile, 'r') as fh:
             return fh.read().strip()
     try:
-        iqtree_wrapper = Iqtree(alignment_file, datatype=DataType.PROTEIN)
-        iqtree_wrapper.options = get_gene_tree_options()
+        if seq_type == 'dna':
+            iqtree_wrapper = Iqtree(alignment_file, datatype=DataType.DNA)
+            iqtree_wrapper.options = get_gene_tree_dna_options()
+        else:
+            iqtree_wrapper = Iqtree(alignment_file, datatype=DataType.PROTEIN)
+            iqtree_wrapper.options = get_gene_tree_options()
         if iqtree_model:
             iqtree_wrapper.options.options['-m'].set_value(iqtree_model)
         if no_fast:
@@ -69,9 +73,10 @@ class CoalescentInference(object):
     def __init__(self, args):
         self.args = args
         self._species_name = 'merge'
-        self._filtered_folder = self._make_output_path('07_astral_filtered_aa')
-        self._trimmed_folder = self._make_output_path('07_astral_trimmed_aa') if args.trim else None
-        self._gene_trees_folder = self._make_output_path('08_gene_trees')
+        self._seq_type = 'dna' if getattr(args, 'dna', False) else 'aa'
+        self._filtered_folder = self._make_output_path('07_astral_filtered_' + self._seq_type)
+        self._trimmed_folder = self._make_output_path('07_astral_trimmed_' + self._seq_type) if args.trim else None
+        self._gene_trees_folder = self._make_output_path('08_gene_trees_' + self._seq_type)
         self.elapsed_time = 0
         self.tree = None
         self._run()
@@ -116,7 +121,7 @@ class CoalescentInference(object):
 
         :return: list of paths to filtered FASTA files
         """
-        input_folder = os.path.join(self.args.output_path, '06_align_merge_aa')
+        input_folder = os.path.join(self.args.output_path, '06_align_merge_' + self._seq_type)
         log_path = os.path.join(self._filtered_folder, 'filtering_summary.txt')
         filtered_files = []
         total = 0
@@ -202,7 +207,7 @@ class CoalescentInference(object):
         iqtree_model = getattr(self.args, 'iqtree_model', None)
         iqtree_extra = getattr(self.args, 'iqtree_args', None)
         no_fast = getattr(self.args, 'no_fast', False)
-        tasks = [(f, self._gene_trees_folder, iqtree_model, iqtree_extra, no_fast) for f in alignment_files]
+        tasks = [(f, self._gene_trees_folder, iqtree_model, iqtree_extra, no_fast, self._seq_type) for f in alignment_files]
         logger.info('{}: Running per-gene IQ-TREE on {} alignments with {} workers.'.format(
             self._species_name, len(tasks), self.args.threads))
 
@@ -213,7 +218,7 @@ class CoalescentInference(object):
 
         trees = [t for t in results if t is not None]
         gene_tree_file = os.path.join(self.args.output_path,
-                                      'gene_trees_' + self._species_name + '.nwk')
+                                      'gene_trees_{}_{}.nwk'.format(self._species_name, self._seq_type))
         with open(gene_tree_file, 'w') as fh:
             for tree in trees:
                 fh.write(tree.strip() + '\n')
@@ -230,7 +235,7 @@ class CoalescentInference(object):
         :return: coalescent species tree in Newick format
         """
         species_tree_file = os.path.join(self.args.output_path,
-                                         'astral_tree_' + self._species_name + '.nwk')
+                                         'astral_tree_{}_{}.nwk'.format(self._species_name, self._seq_type))
         aster_wrapper = Aster(gene_tree_file, species_tree_file,
                               binary=getattr(self.args, 'astral_binary', None))
         aster_wrapper.options.options['-t'].set_value(self.args.threads)

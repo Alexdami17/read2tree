@@ -173,6 +173,7 @@ read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.
 | `--iqtree_args` | none | Extra flags appended verbatim to every per-gene IQ-TREE call (e.g. `"-B 1000"`) |
 | `--astral_args` | none | Extra flags appended verbatim to the ASTER call; see the ASTER documentation for available options |
 | `--no_fast` | off | Disable the `-fast` flag to run a full ML tree search per gene. Required when using bootstrap via `--iqtree_args` (e.g. `--iqtree_args "-B 1000"`), as `-fast` and bootstrap are incompatible in IQ-TREE |
+| `--dna` | off | Use DNA alignments from `06_align_merge_dna` instead of amino acid alignments. Recommended for closely related species. Default model switches to `GTR+G` |
 
 ```
 # Use WAG+G model instead of LG+F+G
@@ -183,14 +184,17 @@ read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.
 
 # Full ML search with ultrafast bootstrap (--no_fast required when using -B)
 read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --no_fast --iqtree_args "-B 1000"
+
+# DNA-based coalescent tree (recommended for closely related species)
+read2tree --step 4astral --standalone_path marker_genes --dna_reference dna_ref.fa --output_path output --threads 24 --dna
 ```
 
-Key output files written to `output/`:
-- `07_astral_filtered_aa/` - per-OG FASTA alignments that passed filtering
-- `07_astral_trimmed_aa/` - ClipKIT-trimmed alignments (only when `--trim` is used)
-- `08_gene_trees/` - individual IQ-TREE gene tree files
-- `gene_trees_merge.nwk` - all gene trees concatenated into one file (input to ASTER)
-- `astral_tree_merge.nwk` - the final coalescent species tree in Newick format
+Key output files written to `output/` (suffix is `aa` by default, `dna` when `--dna` is used):
+- `07_astral_filtered_aa/` or `07_astral_filtered_dna/` - per-OG FASTA alignments that passed filtering
+- `07_astral_trimmed_aa/` or `07_astral_trimmed_dna/` - ClipKIT-trimmed alignments (only when `--trim` is used)
+- `08_gene_trees_aa/` or `08_gene_trees_dna/` - individual IQ-TREE gene tree files
+- `gene_trees_merge_aa.nwk` or `gene_trees_merge_dna.nwk` - all gene trees concatenated into one file (input to ASTER)
+- `astral_tree_merge_aa.nwk` or `astral_tree_merge_dna.nwk` - the final coalescent species tree in Newick format
 
 ### bootstraping
 

@@ -217,6 +217,13 @@ def parse_args(argv, exe_name, desc):
                                  'search. Required when using bootstrap via --iqtree_args '
                                  '(e.g. --iqtree_args "-B 1000"). Used by step 4astral.')
 
+    arg_parser.add_argument('--dna', action='store_true',
+                            help='[Default is false] Use DNA alignments from '
+                                 '06_align_merge_dna instead of amino acid alignments '
+                                 'for step 4astral. Recommended for closely related '
+                                 'species. Default IQ-TREE model switches to GTR+G. '
+                                 'Used by step 4astral.')
+
     arg_parser.add_argument('--step', default="all",
                             help='[Default is all  1marker 2map 3combine 4astral')
 
@@ -491,7 +498,8 @@ def main(argv, exe_name, desc=''):
         logger.info(' ------- Read2Tree finished -*- -------')
 
     if args.step == "4astral":
-        input_align_folder = os.path.join(args.output_path, '06_align_merge_aa')
+        _seq_type = 'dna' if args.dna else 'aa'
+        input_align_folder = os.path.join(args.output_path, '06_align_merge_' + _seq_type)
         if not os.path.exists(input_align_folder):
             logger.error(
                 'Step 4astral requires completed step 3combine output. '
